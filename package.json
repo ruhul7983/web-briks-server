@@ -1,0 +1,46 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:db:push": "prisma db push",
+    "prisma:seed": "node prisma/seed.js",
+    "prisma:deploy": "npm run prisma:generate && npm run prisma:db:push && npm run prisma:seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/adapter-pg": "7.0.0",
+    "@prisma/client": "^7.0.0",
+    "@prisma/config": "7.0.0",
+    "argon2": "^0.44.0",
+    "bcryptjs": "^3.0.2",
+    "cheerio": "^1.1.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "decimal.js": "^10.6.0",
+    "dotenv": "17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "nanoid": "^5.1.6",
+    "nodemailer": "^7.0.12",
+    "pg": "8.16.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11",
+    "prisma": "^7.0.0"
+  }
+}

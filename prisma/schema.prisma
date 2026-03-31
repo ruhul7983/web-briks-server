@@ -12,12 +12,10 @@ enum Role {
   MODERATOR
 }
 
-// --- Multi-Site Configuration ---
-// To add a new portfolio, simply add a new value to this enum
 enum Site {
   WEBBRIKS
   ASHAD
-  PORTFOLIO_THREE // Example for future expansion
+  PORTFOLIO_THREE
 }
 
 model User {
@@ -25,7 +23,7 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      Role     @default(MODERATOR) // New users default to Moderator for safety
+  role      Role     @default(MODERATOR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -33,100 +31,94 @@ model User {
 // --- Content Taxonomy ---
 model Category {
   id            Int           @id @default(autoincrement())
-  site          Site          @default(WEBBRIKS) // Defaulting as requested
+  site          Site          @default(WEBBRIKS)
   name          String
   slug          String
   subcategories Subcategory[]
   blogs         Blog[]
+  projects      Project[]     // Added relation to Projects
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  // Name and Slug must be unique PER SITE, not across the whole DB
   @@unique([name, site])
   @@unique([slug, site])
 }
 
 model Subcategory {
-  id         Int      @id @default(autoincrement())
-  site       Site     @default(WEBBRIKS)
+  id         Int       @id @default(autoincrement())
+  site       Site      @default(WEBBRIKS)
   name       String
   slug       String
   categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   blogs      Blog[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  projects   Project[] // Added relation to Projects
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  // Ensures subcategory name is unique within its parent category and site
   @@unique([name, categoryId])
   @@unique([slug, site])
 }
 
 // --- Blog System ---
 model Blog {
-  id       Int     @id @default(autoincrement())
-  site     Site    @default(WEBBRIKS)
-  title    String
-  slug     String
-  author   String  @default("Admin")
-  readTime String?
-  badge    String?
-  image    String?
-  featured Boolean @default(false)
-
-  // SEO Fields
+  id              Int          @id @default(autoincrement())
+  site            Site         @default(WEBBRIKS)
+  title           String
+  slug            String
+  author          String       @default("Admin")
+  readTime        String?
+  badge           String?
+  image           String?
+  featured        Boolean      @default(false)
   metaTitle       String?
   metaDescription String?
   keywords        String[]
-  status          String   @default("published")
-
+  status          String       @default("published")
+  
   // Relations
-  categoryId    Int?
-  category      Category?    @relation(fields: [categoryId], references: [id])
-  subcategoryId Int?
-  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
+  categoryId      Int?
+  category        Category?    @relation(fields: [categoryId], references: [id])
+  subcategoryId   Int?
+  subcategory     Subcategory? @relation(fields: [subcategoryId], references: [id])
 
-  // Content
-  description Json
+  description     Json
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Slug must be unique per site
   @@unique([slug, site])
 }
 
-
-
 // --- Project Portfolio System ---
 model Project {
-  id              Int      @id @default(autoincrement())
-  site            Site     @default(WEBBRIKS)
+  id              Int          @id @default(autoincrement())
+  site            Site         @default(WEBBRIKS)
   title           String
   slug            String
   
-  // --- Your Requested Fields ---
-  clientName      String   // "Clients"
-  impactAreas     String[] // "Our impact areas" (Stored as an array of strings)
-  startDate       DateTime // "Start Date"
-  clientLocation  String   // "Client Location"
+  // Project Specific Fields
+  clientName      String
+  impactAreas     String[]
+  startDate       DateTime
+  clientLocation  String
   
-  // Layout & Media (Same as Blog)
+  // Relations (Now matches Blog system)
+  categoryId      Int?
+  category        Category?    @relation(fields: [categoryId], references: [id])
+  subcategoryId   Int?
+  subcategory     Subcategory? @relation(fields: [subcategoryId], references: [id])
+
+  // Media & SEO
   image           String?
-  featured        Boolean  @default(false)
-  status          String   @default("published")
-  
-  // SEO Fields (Same as Blog)
+  featured        Boolean      @default(false)
+  status          String       @default("published")
   metaTitle       String?
   metaDescription String?
   keywords        String[]
 
-  // Content (Same as Blog)
   description     Json
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Ensures project slug is unique per site
   @@unique([slug, site])
 }

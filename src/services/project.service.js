@@ -19,7 +19,7 @@ const parseDate = (dateStr) => {
 };
 
 module.exports = {
-async createProject(body, files = []) {
+  async createProject(body, files = []) {
     try {
       const heroFile = files.find(f => f.fieldname === 'image');
       const imagePath = heroFile ? `/uploads/projects/${heroFile.filename}` : null;
@@ -42,7 +42,6 @@ async createProject(body, files = []) {
         slug: body.slug || `proj-${Date.now()}`,
         clientName: body.clientName || "N/A",
         impactAreas: safeParse(body.impactAreas, []),
-        // Ensure valid date object
         startDate: body.startDate ? new Date(body.startDate) : new Date(),
         clientLocation: body.clientLocation || "N/A",
         featured: body.featured === 'true' || body.featured === true,
@@ -51,13 +50,15 @@ async createProject(body, files = []) {
         metaDescription: body.metaDescription || "",
         keywords: safeParse(body.keywords, []),
         image: imagePath,
-        description: processedDescription 
+        description: processedDescription,
+        // Added Taxonomy Support
+        categoryId: body.categoryId ? Number(body.categoryId) : null,
+        subcategoryId: body.subcategoryId ? Number(body.subcategoryId) : null,
       };
 
       return await prisma.project.create({ data: projectData });
 
     } catch (err) {
-      // THIS WILL TELL YOU EXACTLY WHY IT FAILED IN YOUR TERMINAL
       if (err.code === 'P2002') {
         console.error("❌ PRISMA ERROR: A project with this slug already exists for this site.");
         throw new Error("A project with this slug already exists.");
@@ -110,7 +111,6 @@ async createProject(body, files = []) {
         slug: body.slug,
         clientName: body.clientName,
         impactAreas: safeParse(body.impactAreas, []),
-        // If updating and startDate is provided, parse it safely
         startDate: body.startDate !== undefined ? parseDate(body.startDate) : undefined,
         clientLocation: body.clientLocation,
         featured: body.featured === 'true' || body.featured === true,
@@ -119,7 +119,10 @@ async createProject(body, files = []) {
         metaDescription: body.metaDescription,
         keywords: safeParse(body.keywords, []),
         image: imagePath,
-        description: processedDescription
+        description: processedDescription,
+        // Added Taxonomy Support
+        categoryId: body.categoryId ? Number(body.categoryId) : null,
+        subcategoryId: body.subcategoryId ? Number(body.subcategoryId) : null,
       }
     });
   },
@@ -133,7 +136,9 @@ async createProject(body, files = []) {
         where: { site: filterSite },
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        // Added Taxonomy Support
+        include: { category: true, subcategory: true }
       }),
       prisma.project.count({ where: { site: filterSite } })
     ]);
@@ -148,12 +153,17 @@ async createProject(body, files = []) {
           slug: slug, 
           site: filterSite 
         } 
-      }
+      },
+      // Added Taxonomy Support
+      include: { category: true, subcategory: true }
     });
   },
 
   async getProjectById(id) {
-    return await prisma.project.findUnique({ where: { id } });
+    return await prisma.project.findUnique({ 
+        where: { id },
+        include: { category: true, subcategory: true }
+    });
   },
 
   async deleteProject(id) {

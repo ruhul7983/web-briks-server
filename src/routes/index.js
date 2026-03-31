@@ -6,6 +6,7 @@ const router = Router();
 const authRoutes = require('../routes/auth.routes');
 const blogRoutes = require('../routes/blog.routes');
 const categoriesRoutes = require('../routes/category.routes');
+const projectsRoutes = require('../routes/project.routes');
 
 
 
@@ -19,6 +20,7 @@ const auth = require('../middlewares/auth');
 router.use('/auth',  authRoutes);
 router.use('/blogs',  blogRoutes);
 router.use('/categories',  categoriesRoutes);
+router.use('/projects',  projectsRoutes);
 
 
 

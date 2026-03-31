@@ -95,3 +95,38 @@ model Blog {
   // Slug must be unique per site
   @@unique([slug, site])
 }
+
+
+
+// --- Project Portfolio System ---
+model Project {
+  id              Int      @id @default(autoincrement())
+  site            Site     @default(WEBBRIKS)
+  title           String
+  slug            String
+  
+  // --- Your Requested Fields ---
+  clientName      String   // "Clients"
+  impactAreas     String[] // "Our impact areas" (Stored as an array of strings)
+  startDate       DateTime // "Start Date"
+  clientLocation  String   // "Client Location"
+  
+  // Layout & Media (Same as Blog)
+  image           String?
+  featured        Boolean  @default(false)
+  status          String   @default("published")
+  
+  // SEO Fields (Same as Blog)
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+
+  // Content (Same as Blog)
+  description     Json
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Ensures project slug is unique per site
+  @@unique([slug, site])
+}
